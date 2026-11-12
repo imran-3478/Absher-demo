@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<meta name="color-scheme" content="light"/>
+<link rel="icon" href="data:,"/>
+<title>Absher — Demo</title>
+<style>
+:root{--green:#0a7a43;--green2:#0d9a55;--dark:#063d22;--mint:#eef7f1;--mint2:#e3f2e8;--bg:#f7faf8;--card:#fff;--text:#12211a;--muted:#6b7d72;--line:#e2ece5;--amber:#b7791f;--shadow:0 8px 30px rgba(6,61,34,.09)}
+*{box-sizing:border-box}html,body{margin:0;padding:0;background:#dcebe1;font-family:ui-sans-system,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:var(--text)}
+button{font-family:inherit;cursor:pointer;border:none;background:none;min-height:44px}
+input,select,textarea{font-family:inherit}
+.phone{max-width:430px;margin:0 auto;min-height:100dvh;background:var(--bg);position:relative;overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,.06),0 20px 60px rgba(0,0,0,.18);display:flex;flex-direction:column}
+@media(min-width:500px){.phone{margin:18px auto;border-radius:36px;min-height:860px;height:calc(100dvh - 36px)}}
+/* LOCK */
+#lock{position:absolute;inset:0;z-index:60;background:linear-gradient(180deg,#0a7a43 0%,#075c32 52%,#f7faf8 52.1%,#f7faf8 100%);display:flex;flex-direction:column;padding:28px 22px 22px}
+#lock.hidden{display:none}
+.lock-top{color:#fff;text-align:center;padding-top:10px}
+.logo{width:72px;height:72px;border-radius:50%;background:#fff;display:grid;place-items:center;margin:0 auto 12px;box-shadow:0 10px 24px rgba(0,0,0,.2)}
+.logo-inner{width:52px;height:52px;border-radius:50%;background:var(--green);display:grid;place-items:center;color:#fff;font-weight:900;font-size:26px}
+.lock-top h1{margin:0;font-size:36px;letter-spacing:-.02em}.lock-top p{margin:4px 0 0;opacity:.92;font-size:14px;letter-spacing:.14em;text-transform:uppercase}
+.avatar{width:78px;height:78px;border-radius:50%;background:#dbeee2;border:3px solid #fff;margin:28px auto 0;display:grid;place-items:center;font-size:32px}
+.lock-card{background:#fff;border-radius:20px;padding:20px;margin-top:18px;box-shadow:var(--shadow);text-align:center}
+.lock-card h2{margin:0 0 6px;font-size:19px}.lock-card p{margin:0;color:var(--muted);font-size:14px;line-height:1.5}
+.fp-btn{width:92px;height:92px;border-radius:50%;background:var(--mint);border:2px solid var(--mint2);margin:18px auto 6px;display:grid;place-items:center;font-size:44px;position:relative}
+.fp-btn.scanning{animation:pulse 0.7s infinite alternate;border-color:var(--green)}
+@keyframes pulse{from{transform:scale(1);box-shadow:0 0 0 0 rgba(10,122,67,.25)}to{transform:scale(1.05);box-shadow:0 0 0 16px rgba(10,122,67,0)}}
+.link-btn{color:var(--green);font-weight:700;font-size:14px}
+.demo-pill{display:inline-flex;align-items:center;gap:6px;background:#fff7e0;border:1px solid #f0d48a;color:#7a5a00;font-size:11px;font-weight:800;letter-spacing:.04em;padding:6px 10px;border-radius:999px}
+#pinPad{display:none;margin-top:14px}
+#pinPad.show{display:block}
+.dots{display:flex;gap:10px;justify-content:center;margin:10px 0 14px}.dot{width:14px;height:14px;border-radius:50%;border:2px solid #bcd8c6;background:#fff}.dot.fill{background:var(--green);border-color:var(--green)}
+.pad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:240px;margin:0 auto}
+.pad button{height:52px;border-radius:14px;background:#f1f6f2;font-size:19px;font-weight:700}
+/* APP SHELL */
+#app{display:none;flex:1;flex-direction:column;min-height:0}#app.show{display:flex}
+.topbar{background:#fff;border-bottom:1px solid var(--line);padding:14px 16px 10px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:20}
+.brand{display:flex;align-items:center;gap:10px}.brand-mark{width:38px;height:38px;border-radius:50%;background:var(--green);color:#fff;display:grid;place-items:center;font-weight:900;font-size:19px}
+.brand b{font-size:19px;line-height:1}.brand span{display:block;font-size:11px;color:var(--muted);font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-top:2px}
+.top-icons{display:flex;gap:6px}.icon-btn{width:40px;height:40px;border-radius:50%;background:var(--mint);display:grid;place-items:center;font-size:18px}
+#content{flex:1;overflow-y:auto;padding:16px 16px 96px;-webkit-overflow-scrolling:touch}
+.view{display:none}.view.active{display:block}
+.section-title{font-size:17px;font-weight:800;margin:20px 0 10px;letter-spacing:-.01em}
+.section-title:first-child{margin-top:2px}
+/* HOME */
+.greet{background:linear-gradient(135deg,#0a7a43,#0d8f4f);color:#fff;border-radius:20px;padding:18px;position:relative;overflow:hidden}
+.greet:after{content:"";position:absolute;right:-30px;top:-30px;width:130px;height:130px;border-radius:50%;background:rgba(255,255,255,.14)}
+.greet h2{margin:6px 0 4px;font-size:20px;position:relative;z-index:1}.greet p{margin:0;opacity:.9;font-size:13px;position:relative;z-index:1}
+.profile-card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:14px;display:flex;gap:12px;align-items:center;margin-top:14px;box-shadow:var(--shadow)}
+.avatar-sm{width:56px;height:56px;border-radius:50%;background:#dfeee5;display:grid;place-items:center;font-size:24px;flex-shrink:0;border:2px solid var(--mint2)}
+.profile-card h3{margin:0;font-size:15px}.profile-card p{margin:3px 0 0;color:var(--muted);font-size:13px;display:flex;align-items:center;gap:8px}
+.eye{color:var(--green);font-weight:800;font-size:12px;padding:6px 8px;min-height:36px}
+/* DOC CAROUSEL */
+.carousel{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:6px;scrollbar-width:none}.carousel::-webkit-scrollbar{display:none}
+.doc-card{min-width:92%;scroll-snap-align:start;border-radius:18px;padding:16px;color:#fff;position:relative;overflow:hidden;min-height:196px}
+.doc-card.green{background:linear-gradient(135deg,#0a7a43,#064e2a)}.doc-card.teal{background:linear-gradient(135deg,#0f766e,#134e4a)}
+.doc-card h4{margin:0;font-size:13px;letter-spacing:.08em;text-transform:uppercase;opacity:.95}
+.doc-row{display:flex;gap:12px;margin-top:12px}.doc-photo{width:62px;height:76px;border-radius:10px;background:rgba(255,255,255,.92);display:grid;place-items:center;font-size:28px;color:#333;flex-shrink:0}
+.doc-meta{font-size:12px;line-height:1.55}.doc-meta b{font-size:14px}
+.qr{width:52px;height:52px;background:#fff;border-radius:6px;padding:5px;display:grid;grid-template-columns:repeat(5,1fr);gap:2px;margin-top:8px}.qr i{background:#111;border-radius:1px}.qr i:nth-child(3n){opacity:.2}
+.barcode{height:28px;background:repeating-linear-gradient(90deg,#fff 0 2px,transparent 2px 5px,#fff 5px 6px,transparent 6px 10px);opacity:.9;margin-top:10px;border-radius:2px}
+.dots-nav{display:flex;gap:6px;justify-content:center;margin-top:6px}.dots-nav span{width:7px;height:7px;border-radius:50%;background:#cbdacf}.dots-nav span.on{background:var(--green);width:20px;border-radius:999px}
+.hint{font-size:11px;color:var(--muted);text-align:center}
+/* TILES & ROWS */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tile{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;text-align:left;min-height:92px}
+.tile .ic{font-size:26px;display:block;margin-bottom:8px}.tile b{font-size:13.5px;line-height:1.3;display:block}.tile span{font-size:12px;color:var(--muted);display:block;margin-top:3px;line-height:1.4}
+.list{background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.row{width:100%;display:flex;align-items:center;gap:12px;padding:14px 14px;border-bottom:1px solid var(--line);text-align:left;background:#fff}
+.row:last-child{border-bottom:none}.row .ic{width:40px;height:40px;border-radius:12px;background:var(--mint);display:grid;place-items:center;font-size:19px;flex-shrink:0}
+.row b{font-size:14px;display:block}.row span{font-size:12px;color:var(--muted)}.row .arr{margin-left:auto;color:#9ab8a6;font-size:20px}
+/* BOTTOM NAV */
+.bottom{position:absolute;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(5,1fr);padding:6px 4px calc(8px + env(safe-area-inset-bottom));z-index:30}
+.nav-btn{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:10.5px;font-weight:700;color:#7a8c80;padding:6px 2px;border-radius:12px;min-height:52px}
+.nav-btn .n-ic{font-size:20px;line-height:1}.nav-btn.active{color:var(--green)}
+/* DETAIL OVERLAY */
+#detail{position:absolute;inset:0;background:var(--bg);z-index:40;display:none;flex-direction:column}
+#detail.show{display:flex}
+.detail-head{background:#fff;border-bottom:1px solid var(--line);padding:12px 14px;display:flex;align-items:center;gap:10px}
+.back{width:40px;height:40px;border-radius:50%;background:var(--mint);display:grid;place-items:center;font-size:19px}
+.detail-head h2{margin:0;font-size:17px}
+.detail-body{flex:1;overflow-y:auto;padding:16px}
+.kv{background:#fff;border:1px solid var(--line);border-radius:16px;padding:6px 14px}
+.kv div{display:flex;justify-content:space-between;gap:16px;padding:11px 0;border-bottom:1px solid #eef3ef;font-size:13.5px}.kv div:last-child{border:none}.kv span{color:var(--muted)}.kv b{text-align:right}
+.badge{display:inline-flex;padding:4px 9px;border-radius:999px;font-size:11px;font-weight:800}.badge.green{background:#dcf5e6;color:#0a5c33}.badge.amber{background:#fef3c7;color:#92400e}
+.accordion{background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden;margin-bottom:10px}
+.acc-head{width:100%;display:flex;justify-content:space-between;align-items:center;padding:15px 14px;font-weight:800;font-size:14px;text-align:left}
+.acc-body{display:none;padding:0 14px 8px}.accordion.open .acc-body{display:block}.accordion.open .chev{transform:rotate(180deg)}
+/* FORMS */
+.field{margin-bottom:12px}.field label{display:block;font-size:12px;font-weight:700;color:var(--muted);margin-bottom:6px;letter-spacing:.02em}
+.field input,.field select{width:100%;padding:13px 12px;border:1px solid var(--line);border-radius:12px;background:#fff;font-size:14px;min-height:48px}
+.primary{width:100%;background:var(--green);color:#fff;font-weight:800;border-radius:14px;padding:14px;font-size:15px;margin-top:6px}
+.search{width:100%;padding:13px 14px;border-radius:999px;border:1px solid var(--line);background:#fff;font-size:14px;margin-bottom:12px}
+.pers-card{background:#eaf6ee;border:1px solid #cfe8d7;border-radius:16px;padding:14px;margin-bottom:14px}
+.pers-card b{font-size:14px}.pers-card p{margin:4px 0 0;color:var(--muted);font-size:13px;line-height:1.5}
+.req{display:flex;justify-content:space-between;gap:10px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:8px;font-size:13px}
+.member{background:#fff;border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:var(--shadow)}
+.empty-note{font-size:12px;color:var(--muted);background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:10px 12px;margin-top:12px;line-height:1.5}
+#toast{position:absolute;left:16px;right:16px;bottom:92px;background:#12211a;color:#fff;padding:13px 14px;border-radius:14px;font-size:13.5px;font-weight:700;text-align:center;opacity:0;pointer-events:none;transition:.25s;z-index:70}
+#toast.show{opacity:1;transform:translateY(-4px)}
+/* PROPOSAL */
+#proposal{max-width:430px;margin:0 auto;background:#fff;padding:22px 18px 30px;border-top:6px solid var(--green)}
+@media(min-width:500px){#proposal{margin:0 auto 24px;border-radius:0 0 24px 24px}}
+#proposal h2{font-size:21px;margin:4px 0 6px;letter-spacing:-.02em}#proposal h3{font-size:15px;margin:20px 0 8px;color:var(--dark)}
+#proposal p,#proposal li{font-size:13.5px;line-height:1.65;color:#2f3f35}#proposal ul,#proposal ol{padding-left:18px;margin:6px 0}
+.tag{display:inline-block;background:var(--mint);color:var(--green);font-weight:800;font-size:11px;letter-spacing:.06em;text-transform:uppercase;padding:5px 9px;border-radius:999px}
+.warn{background:#fffbeb;border:1px solid #fde68a;border-radius:12px;padding:12px 14px}
+.table{width:100%;border-collapse:collapse;font-size:12.5px;margin:8px 0}.table th,.table td{border:1px solid var(--line);padding:8px;text-align:left}.table th{background:var(--mint)}
+.blank{border-bottom:1.5px dotted #9ab8a6;display:inline-block;min-width:110px}
+</style>
+</head>
+<body>
+<div class="phone" id="phone">
+  <!-- LOCK -->
+  <div id="lock">
+    <div class="lock-top">
+      <div class="logo"><div class="logo-inner">A</div></div>
+      <h1>Absher</h1><p>Demo &nbsp;•&nbsp; أبشر</p>
+      <div class="avatar">👤</div>
+    </div>
+    <div class="lock-card">
+      <span class="demo-pill">● DEMO — SAMPLE DATA ONLY</span>
+      <h2 style="margin-top:14px">Verify Your Identity</h2>
+      <p>Use your fingerprint to continue<br>Welcome back, <b style="color:#12211a">MD SAMPLE USER</b></p>
+      <button class="fp-btn" id="fpBtn" aria-label="Use fingerprint"><svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#0a7a43" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M12 11a3 3 0 0 1 3 3c0 2-.5 3.5-1 5"/><path d="M9 14c0 2.5-.3 4.2-1 6"/><path d="M12 8a6 6 0 0 1 6 6c0 2.2-.4 4-1 6"/><path d="M6 14c0 1.5-.1 2.8-.4 4.2"/><path d="M12 5a9 9 0 0 1 9 9c0 2-.3 3.8-.8 5.5"/><path d="M3.8 18.5C3.3 17 3 15.5 3 14a9 9 0 0 1 2-5.5"/><path d="M12 11v4c0 1.8-.2 3.3-.6 4.8"/></svg></button>
+      <div id="fpStatus" style="font-size:12px;color:var(--muted);min-height:18px">Tap the fingerprint to unlock</div>
+      <button class="link-btn" id="showPin">Use PIN instead →</button>
+      <div id="pinPad">
+        <div class="dots" id="dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+        <div class="pad" id="pad"></div>
+        <p style="font-size:11px;margin-top:8px">Demo: any 4 digits will unlock</p>
+      </div>
+    </div>
+    <p style="text-align:center;font-size:11px;color:#5b6f62;margin-top:auto">This is a client demo prototype. No real login, no real data.</p>
+  </div>
+
+  <!-- APP -->
+  <div id="app">
+    <div class="topbar">
+      <div class="brand"><div class="brand-mark">A</div><div><b>Absher</b><span>Demo</span></div></div>
+      <div class="top-icons"><button class="icon-btn" onclick="toast('No new notifications (demo)')">🔔</button><button class="icon-btn" onclick="toast('Settings — demo only')">⚙️</button></div>
+    </div>
+    <div id="content">
+      <!-- HOME -->
+      <section class="view active" id="view-home">
+        <div class="greet"><span class="demo-pill">DEMO — SAMPLE DATA ONLY</span><h2>Assalamu Alaikum 👋</h2><p>MD SAMPLE USER • Riyadh, Saudi Arabia</p></div>
+        <div class="profile-card"><div class="avatar-sm">👤</div><div style="flex:1"><h3>MD SAMPLE USER</h3><p>ID No.: <span id="idText">2000000000</span> <button class="eye" id="eyeBtn">👁 Hide</button></p></div><span style="font-size:20px;color:#9ab8a6">›</span></div>
+
+        <div class="section-title">My Digital Documents</div>
+        <div class="carousel" id="carousel">
+          <div class="doc-card green">
+            <h4>🪪 Resident ID — Digital Copy</h4>
+            <div class="doc-row"><div class="doc-photo">👤</div><div class="doc-meta"><b>MD SAMPLE USER</b><br>Nationality: Bangladeshi<br>DOB: 01 Jan 1990 • Religion: Islam<br>Occupation: General Worker<br>Issue: 01 Jan 2024 • Expiry: 01 Jan 2026</div></div>
+            <div style="display:flex;gap:14px;align-items:flex-end"><div class="qr" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div style="flex:1"><div style="font-size:11px;opacity:.9">ID No. 2000000000</div><div class="barcode"></div></div></div>
+          </div>
+          <div class="doc-card teal">
+            <h4>🚗 Driving License — Digital Copy</h4>
+            <div class="doc-row"><div class="doc-photo">👤</div><div class="doc-meta"><b>MD SAMPLE USER</b><br>License No: DL-00000000<br>Category: Private (Light)<br>Issue: 15 Mar 2023<br>Expiry: 15 Mar 2028 • Status: Valid</div></div>
+            <div class="barcode" style="margin-top:22px"></div><div style="font-size:11px;opacity:.9;margin-top:6px">Swipe back to see Resident ID →</div>
+          </div>
+        </div>
+        <div class="hint">← Swipe left for Driving License • Swipe right for Resident ID</div><div class="dots-nav" id="dotsNav"><span class="on"></span><span></span></div>
+
+        <div class="section-title">Quick Access</div>
+        <div class="grid2">
+          <button class="tile" onclick="openDetail('vehicles')"><span class="ic">🚗</span><b>My Vehicles</b><span>View details, renew documents</span></button>
+          <button class="tile" onclick="switchTab('services')"><span class="ic">🛡️</span><b>Authentication Services</b><span>Verify identity &amp; requests</span></button>
+          <button class="tile" onclick="openDetail('travel-records')"><span class="ic">🗺️</span><b>Travel</b><span>Absher Travel &amp; trips</span></button>
+          <button class="tile" onclick="toast('Document Delivery — demo screen')"><span class="ic">📦</span><b>Document Delivery</b><span>Track delivered documents</span></button>
+          <button class="tile" onclick="toast('Traffic Violations: No violations (demo)')"><span class="ic">🚦</span><b>Traffic Violations</b><span>Check &amp; pay violations</span></button>
+          <button class="tile" onclick="switchTab('other')"><span class="ic">▦</span><b>All Services</b><span>Browse every service</span></button>
+        </div>
+
+        <div class="section-title">My Profile</div>
+        <div class="list">
+          <button class="row" onclick="openDetail('passport')"><span class="ic">🌐</span><div><b>My Passport</b><span>A00000000 • Valid</span></div><span class="arr">›</span></button>
+          <button class="row" onclick="openDetail('resident')"><span class="ic">🪪</span><div><b>My Resident ID</b><span>2000000000</span></div><span class="arr">›</span></button>
+          <button class="row" onclick="openDetail('visa')"><span class="ic">📄</span><div><b>My Visa</b><span>Work Visa • Active</span></div><span class="arr">›</span></button>
+          <button class="row" onclick="openDetail('license')"><span class="ic">💳</span><div><b>My Driving License</b><span>Private • Valid</span></div><span class="arr">›</span></button>
+          <button class="row" onclick="openDetail('travel-records')"><span class="ic">✈️</span><div><b>My Travel Records</b><span>Last trips &amp; border history</span></div><span class="arr">›</span></button>
+        </div>
+        <button class="row" style="margin-top:10px;border:1px solid var(--line);border-radius:16px" onclick="openDetail('personal')"><span class="ic">👤</span><div><b>My Personal Details</b><span>Sponsor, insurance, Hajj &amp; more</span></div><span class="arr">›</span></button>
+      </section>
+
+      <!-- SERVICES -->
+      <section class="view" id="view-services">
+        <h2 style="margin:2px 0 4px;font-size:22px">My Services</h2><p style="color:var(--muted);font-size:13px;margin:0 0 14px">Choose a service to start a request (demo).</p>
+        <div class="grid2" id="serviceGrid"></div>
+        <div class="section-title">My Requests</div>
+        <div id="reqList">
+          <div class="req"><div><b>Renew Resident ID</b><div style="color:var(--muted);font-size:12px;margin-top:2px">12 Nov 2026 • Req #1001</div></div><span class="badge amber">Pending</span></div>
+          <div class="req"><div><b>Authentication Services</b><div style="color:var(--muted);font-size:12px;margin-top:2px">28 Oct 2026 • Req #0987</div></div><span class="badge green">Approved</span></div>
+          <div class="req"><div><b>Document Delivery</b><div style="color:var(--muted);font-size:12px;margin-top:2px">10 Oct 2026 • Req #0954</div></div><span class="badge green">Approved</span></div>
+        </div>
+      </section>
+
+      <!-- FAMILY -->
+      <section class="view" id="view-family">
+        <h2 style="margin:2px 0 4px;font-size:22px">Family</h2><p style="color:var(--muted);font-size:13px;margin:0 0 14px">Family members linked to your account.</p>
+        <div class="member"><div style="display:flex;gap:12px;align-items:center"><div class="avatar-sm">👩</div><div><b style="font-size:16px">SAMPLE SPOUSE</b><div style="color:var(--muted);font-size:13px;margin-top:2px">Spouse • ID: 2000•••••• • Expiry: 01 Jan 2026</div></div></div><button class="primary" onclick="openDetail('family-doc')">View Document Summary</button></div>
+        <div class="empty-note">ℹ️ This is sample data for demo only. In the real app, family members appear after they are linked to the sponsor account.</div>
+      </section>
+
+      <!-- WORKERS -->
+      <section class="view" id="view-workers">
+        <h2 style="margin:2px 0 4px;font-size:22px">Workers</h2><p style="color:var(--muted);font-size:13px;margin:0 0 14px">Workers under your sponsorship.</p>
+        <div class="member"><div style="display:flex;gap:12px;align-items:center"><div class="avatar-sm">👷</div><div><b style="font-size:16px">SAMPLE WORKER</b><div style="color:var(--muted);font-size:13px;margin-top:2px">Driver • ID: 2000•••••• • Expiry: 15 Jun 2026</div></div></div><button class="primary" onclick="openDetail('worker-doc')">View Worker Summary</button></div>
+        <div class="empty-note">ℹ️ Sample data only. Real worker records, visa and permit status will load from the connected system in the live version.</div>
+      </section>
+
+      <!-- OTHER -->
+      <section class="view" id="view-other">
+        <h2 style="margin:2px 0 10px;font-size:22px">Other Services</h2>
+        <input class="search" id="searchBox" placeholder="🔍  Search by Service" aria-label="Search services"/>
+        <div class="pers-card"><b>✦ Personalise your Space</b><p>Take control of your service lineup by selecting the order that suits you best. Arrange your screen items around your interests.</p><button class="link-btn" style="padding:6px 0" onclick="toast('Personalise Space — demo only')">Personalise Space →</button></div>
+        <div class="section-title" style="margin-top:6px">Preferred Services</div>
+        <div class="grid2" id="prefGrid">
+          <button class="tile" data-name="manage appointments"><span class="ic">🕐</span><b>Manage Appointments</b><span>Book &amp; reschedule visits</span></button>
+          <button class="tile" data-name="document delivery"><span class="ic">📦</span><b>Document Delivery</b><span>Delivery by post</span></button>
+          <button class="tile" data-name="travel absher travel"><span class="ic">🗺️</span><b>Travel</b><span>Absher Travel services</span></button>
+          <button class="tile" data-name="manage authorizations"><span class="ic">✅</span><b>Manage Authorizations</b><span>Delegate services to others</span></button>
+        </div>
+        <p id="noResult" style="display:none;color:var(--muted);font-size:13px;text-align:center;padding:12px">No services match your search.</p>
+      </section>
+    </div>
+
+    <nav class="bottom" aria-label="Main">
+      <button class="nav-btn active" data-tab="home" onclick="switchTab('home')"><span class="n-ic">🏠</span>Home</button>
+      <button class="nav-btn" data-tab="services" onclick="switchTab('services')"><span class="n-ic">👤</span>My Services</button>
+      <button class="nav-btn" data-tab="family" onclick="switchTab('family')"><span class="n-ic">👨‍👩‍👧</span>Family</button>
+      <button class="nav-btn" data-tab="workers" onclick="switchTab('workers')"><span class="n-ic">👥</span>Workers</button>
+      <button class="nav-btn" data-tab="other" onclick="switchTab('other')"><span class="n-ic">▦</span>Other Services</button>
+    </nav>
+  </div>
+
+  <!-- DETAIL -->
+  <div id="detail"><div class="detail-head"><button class="back" onclick="closeDetail()">←</button><h2 id="detailTitle">Details</h2></div><div class="detail-body" id="detailBody"></div></div>
+  <div id="toast" role="status"></div>
+</div>
+
+<!-- PROPOSAL (below phone, for Imran / client reading) -->
+<article id="proposal" lang="bn">
+  <span class="tag">প্রস্তাবনা • Proposal</span>
+  <h2>Absher-ধাঁচের সরকারি সার্ভিস অ্যাপ — কীভাবে বানাবো, ধাপে ধাপে</h2>
+  <p>উপরে যে ডেমোটা দেখছেন, সেটা এই প্রস্তাবনারই লাইভ নমুনা — ফিঙ্গারপ্রিন্ট/PIN দিয়ে ঢোকা, ডিজিটাল Resident ID কার্ড, My Passport / Visa / Driving License, Family, Workers আর সার্ভিস রিকোয়েস্ট — সবই হাতে চালিয়ে দেখা যায়। নিচে পুরো অ্যাপটা বানানোর পরিকল্পনা দেওয়া হলো। <b>ডেমোর সব তথ্য স্যাম্পল</b> — কোনো আসল ব্যক্তিগত তথ্য নেই।</p>
+
+  <h3>১) অ্যাপে যা যা থাকবে (Scope)</h3>
+  <ul>
+    <li><b>লগইন ও নিরাপত্তা:</b> Username/Password + Fingerprint/Face + PIN, OTP যাচাই</li>
+    <li><b>Home:</b> প্রোফাইল কার্ড, Digital Documents (Resident ID, Driving License — QR/বারকোডসহ), Quick Access</li>
+    <li><b>My Profile:</b> Passport, Resident ID, Visa, Driving License, Travel Records, Personal Details (Sponsor, Health Insurance, Hajj)</li>
+    <li><b>My Services:</b> নবজাতক নিবন্ধন, লাইসেন্স/আইডি নবায়ন, ছবি পরিবর্তন, দুর্ঘটনা রিপোর্টসহ সার্ভিস ক্যাটালগ + My Requests (Pending/Approved)</li>
+    <li><b>Family ও Workers:</b> পরিবারের সদস্য ও স্পন্সরকৃত কর্মীদের ডকুমেন্ট ও মেয়াদ</li>
+    <li><b>Other Services:</b> সার্চ, অ্যাপয়েন্টমেন্ট, Document Delivery, Authorization</li>
+    <li><b>ভাষা:</b> English + Arabic (RTL) — প্রয়োজনে বাংলা যোগ করা যাবে</li>
+  </ul>
+
+  <h3>২) ধাপে ধাপে নির্মাণ পরিকল্পনা (Step by Step)</h3>
+  <ol>
+    <li><b>Discovery (২–৩ দিন):</b> ক্লায়েন্টের চাহিদা, কোন কোন সার্ভিস সত্যিই লাগবে, ডেটা কোথা থেকে আসবে — তা চূড়ান্ত করা</li>
+    <li><b>UI/UX Design (৪–৫ দিন):</b> Figma-তে পুরো অ্যাপের স্ক্রিন ডিজাইন (এই ডেমোর মতো) → ক্লায়েন্টের অনুমোদন</li>
+    <li><b>Architecture:</b> Flutter অ্যাপ (Android + iOS এক কোডবেস) + Backend API + Admin Panel</li>
+    <li><b>Auth Module:</b> রেজিস্ট্রেশন, লগইন, বায়োমেট্রিক, OTP, সেশন নিরাপত্তা</li>
+    <li><b>Profile ও Documents Module:</b> ডিজিটাল কার্ড, QR যাচাই, ডকুমেন্টের মেয়াদ-অ্যালার্ট</li>
+    <li><b>Services Module:</b> সার্ভিস ক্যাটালগ, ফর্ম, ফি/পেমেন্ট (যদি লাগে), রিকোয়েস্ট ট্র্যাকিং</li>
+    <li><b>Family / Workers Module:</b> সদস্য যোগ, ডকুমেন্ট ভিউ, নবায়ন রিমাইন্ডার</li>
+    <li><b>Admin Panel:</b> ইউজার, সার্ভিস ও রিকোয়েস্ট ম্যানেজমেন্ট, রিপোর্ট</li>
+    <li><b>Testing:</b> আসল ডিভাইসে টেস্ট, বাগ ফিক্স, নিরাপত্তা পরীক্ষা</li>
+    <li><b>Launch:</b> Play Store / App Store-এ প্রকাশ + সার্ভারে লাইভ + হস্তান্তর ও প্রশিক্ষণ</li>
+  </ol>
+  <p><b>আনুমানিক সময়:</b> <span class="blank">&nbsp;৪–৬ সপ্তাহ (স্কোপ অনুযায়ী বদলাতে পারে)</span></p>
+
+  <h3>৩) Saudi VPS লাগবে কি?</h3>
+  <div class="warn"><p style="margin:0"><b>হ্যাঁ, সম্ভবত লাগবে —</b> ব্যবহারকারী যদি সৌদি আরবের ভেতরে থাকেন এবং অ্যাপের ডেটা/সার্ভিস সৌদি সার্ভার থেকে দ্রুত ও স্থানীয় নিয়ম মেনে চালাতে হয়, তাহলে <b>Saudi (Riyadh/Jeddah) region-এর VPS/Cloud</b> নেওয়াই ভালো: কম latency, ডেটা দেশের ভেতরে থাকে, স্থানীয় পেমেন্ট/OTP গেটওয়ের সঙ্গে সংযোগ সহজ হয়। তবে চূড়ান্ত সিদ্ধান্ত নির্ভর করে — (ক) ডেটা কোন দেশের সিস্টেম থেকে আসবে, (খ) কোনো সরকারি API-র সঙ্গে যুক্ত হতে হবে কিনা। VPS-এর মাসিক খরচ ক্লায়েন্টের অ্যাকাউন্টে হবে: <span class="blank">&nbsp;আলোচনা সাপেক্ষে</span></p></div>
+
+  <h3>৪) সৎ কারিগরি নোট — অবশ্যই পড়ুন</h3>
+  <ul>
+    <li>Absher সৌদি সরকারের অফিসিয়াল প্ল্যাটফর্ম। <b>সরকারি ডেটা (আসল Iqama, Visa, Passport রেকর্ড) পেতে হলে সরকারি অনুমোদন/API access লাগে</b> — সেটা ছাড়া অ্যাপে শুধু ক্লায়েন্টের নিজের সিস্টেমের ডেটাই দেখানো যাবে।</li>
+    <li>অ্যাপের নাম, লোগো ও ডিজাইন অফিসিয়াল Absher-এর হুবহু কপি করা যাবে না — ক্লায়েন্টের নিজের ব্র্যান্ডিং লাগবে (আইনি কারণে)।</li>
+    <li>এই ডেমোটি শুধু UI/ফ্লো দেখানোর জন্য — কোনো আসল সার্ভার বা আসল ডেটার সঙ্গে যুক্ত নয়।</li>
+  </ul>
+
+  <h3>৫) ডেলিভারেবল, মূল্য ও পেমেন্ট</h3>
+  <table class="table"><tr><th>আইটেম</th><th>বিবরণ</th><th>মূল্য</th></tr>
+  <tr><td>মোবাইল অ্যাপ</td><td>Android + iOS (Flutter)</td><td><span class="blank">&nbsp;</span></td></tr>
+  <tr><td>Backend + API</td><td>সার্ভার, ডাটাবেস, নিরাপত্তা</td><td><span class="blank">&nbsp;</span></td></tr>
+  <tr><td>Admin Panel</td><td>ওয়েব ড্যাশবোর্ড</td><td><span class="blank">&nbsp;</span></td></tr>
+  <tr><td>Saudi VPS সেটআপ</td><td>কনফিগার ও ডিপ্লয়</td><td><span class="blank">&nbsp;</span></td></tr>
+  <tr><td><b>মোট</b></td><td></td><td><span class="blank">&nbsp;</span></td></tr></table>
+  <p>পেমেন্ট শিডিউল: অগ্রিম <span class="blank">&nbsp;%</span> • ডিজাইন অনুমোদনে <span class="blank">&nbsp;%</span> • লাইভ ডেলিভারিতে <span class="blank">&nbsp;%</span><br>সাপোর্ট/মেইনটেন্যান্স: ডেলিভারির পর <span class="blank">&nbsp;৩০ দিন ফ্রি বাগ-ফিক্স</span>, এরপর মাসিক প্যাকেজ আলোচনা সাপেক্ষে।</p>
+  <p style="color:var(--muted);font-size:12px">প্রস্তুত করেছেন: Imran — এই পৃষ্ঠার লিংকটাই ক্লায়েন্টকে পাঠানো যাবে; উপরে ডেমো, নিচে প্রস্তাবনা।</p>
+</article>
+
+<script>
+var pin='';
+var pad=document.getElementById('pad');
+[1,2,3,4,5,6,7,8,9,'',0,'⌫'].forEach(function(k){var b=document.createElement('button');b.textContent=k;b.onclick=function(){pinKey(k)};if(k==='')b.style.visibility='hidden';pad.appendChild(b)});
+function pinKey(k){if(k==='⌫'){pin=pin.slice(0,-1)}else if(pin.length<4){pin+=k}renderDots();if(pin.length===4){setTimeout(unlock,250)}}
+function renderDots(){var ds=document.querySelectorAll('#dots .dot');ds.forEach(function(d,i){d.classList.toggle('fill',i<pin.length)})}
+document.getElementById('showPin').onclick=function(){document.getElementById('pinPad').classList.toggle('show')};
+document.getElementById('fpBtn').onclick=function(){var btn=this;btn.classList.add('scanning');document.getElementById('fpStatus').textContent='Scanning… hold your finger';setTimeout(function(){btn.classList.remove('scanning');document.getElementById('fpStatus').textContent='✓ Verified';unlock()},1100)};
+function unlock(){document.getElementById('lock').classList.add('hidden');document.getElementById('app').classList.add('show');toast('Welcome back, MD SAMPLE USER (demo)')}
+var hidden=false;
+document.getElementById('eyeBtn').onclick=function(){hidden=!hidden;document.getElementById('idText').textContent=hidden?'2000••••••':'2000000000';this.textContent=hidden?'👁 Show':'👁 Hide'};
+var car=document.getElementById('carousel');car.addEventListener('scroll',function(){var idx=Math.round(car.scrollLeft/(car.offsetWidth*0.92));document.querySelectorAll('#dotsNav span').forEach(function(s,i){s.classList.toggle('on',i===idx)})});
+function switchTab(name){document.querySelectorAll('.view').forEach(function(v){v.classList.remove('active')});document.getElementById('view-'+name).classList.add('active');document.querySelectorAll('.nav-btn').forEach(function(b){b.classList.toggle('active',b.dataset.tab===name)});document.getElementById('content').scrollTop=0;closeDetail()}
+function toast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(function(){t.classList.remove('show')},2600)}
+var services=[['👶','Register Newborn'],['🚗','Renew Driving License'],['🪪','Renew Resident ID'],['🛡️','Authentication Services'],['🖼️','Change Resident Photo'],['🚨','Report Minor Accident']];
+var sg=document.getElementById('serviceGrid');
+services.forEach(function(s){var b=document.createElement('button');b.className='tile';b.innerHTML='<span class="ic">'+s[0]+'</span><b>'+s[1]+'</b><span>Tap to start request</span>';b.onclick=function(){openService(s[1])};sg.appendChild(b)});
+function kv(rows){return '<div class="kv">'+rows.map(function(r){return '<div><span>'+r[0]+'</span><b>'+r[1]+'</b></div>'}).join('')+'</div>'}
+var DETAILS={
+'passport':{t:'My Passport',h:'<div style="background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:12px;font-size:13px;color:var(--muted)">Amount deposit<br><b style="color:var(--text);font-size:16px">0.00</b></div>'+kv([['Passport Number','A00000000'],['Type','Normal'],['Issuing Date','13/09/2021'],['Expiry Date','12/09/2026'],['Issuing Country / Region','Bangladesh'],['Issuing City','Dhaka'],['Status','<span class="badge green">Valid</span>']])},
+'resident':{t:'My Resident ID',h:kv([['Resident ID Number','2000000000'],['ID Version','2'],['Name','MD SAMPLE USER'],['Nationality','Bangladeshi'],['Issuing Date','01/01/2024'],['Expiry Date','01/01/2026'],['Status','<span class="badge green">Active</span>']])},
+'visa':{t:'My Visa',h:kv([['Visa Number','V00000000'],['Type','Work Visa'],['Sponsor No.','7000000000'],['Issue Date','01/01/2024'],['Expiry Date','01/01/2026'],['Status','<span class="badge green">Active</span>']])},
+'license':{t:'My Driving License',h:kv([['License Number','DL-00000000'],['Category','Private (Light Vehicle)'],['Issue Date','15/03/2023'],['Expiry Date','15/03/2028'],['Status','<span class="badge green">Valid</span>']])},
+'vehicles':{t:'My Vehicles',h:kv([['Vehicle','Sample Car — Sedan'],['Plate No.','KSA ••• 0000'],['Model Year','2022'],['Insurance Expiry','20/08/2026'],['Registration','Valid']])+'<p style="font-size:12px;color:var(--muted)">Demo data only.</p>'},
+'travel-records':{t:'My Travel Records',h:'<div class="pers-card"><b>Inside Kingdom</b><p>Find your last trips details below.</p></div>'+kv([['Last Trip','Dhaka → Riyadh • 02 Feb 2025'],['Previous Trip','Riyadh → Dhaka • 18 Dec 2024'],['Travel Status','In Kingdom']])},
+'family-doc':{t:'Family Member — Documents',h:kv([['Name','SAMPLE SPOUSE'],['Relation','Spouse'],['ID No.','2000••••••'],['Nationality','Bangladeshi'],['Expiry Date','01/01/2026'],['Status','<span class="badge green">Active</span>']])},
+'worker-doc':{t:'Worker Summary',h:kv([['Name','SAMPLE WORKER'],['Occupation','Driver'],['ID No.','2000••••••'],['Work Permit','Active'],['Expiry Date','15/06/2026']])},
+'personal':{t:'My Personal Details',h:''}
+};
+function acc(title,rows,open){return '<div class="accordion'+(open?' open':'')+'"><button class="acc-head" onclick="this.parentElement.classList.toggle(\'open\')"><span>'+title+'</span><span class="chev">⌄</span></button><div class="acc-body">'+kv(rows)+'</div></div>'}
+DETAILS['personal'].h=
+ acc('👤 Personal Details',[['Name','MD SAMPLE USER'],['Birth City','Dhaka'],['Birth Country','Bangladesh'],['Date of Birth','01/01/1990'],['Marital Status','MARRIED'],['No. of Sponsorship Transfers','1'],['Religion','Islam'],['Work Permit','Active'],['Biometrics Collected','Yes'],['Travel Status','In Kingdom']],true)+
+ acc('🏢 Sponsor Details',[['Sponsor Name','SAMPLE SPONSOR CO.'],['Sponsor Number','7000000000'],['Sponsor Status','Active']])+
+ acc('🩺 Health Insurance',[['Provider','Sample Insurance Co.'],['Issuing Date','01/01/2025'],['Expiry Date','31/12/2025'],['Blood Type','O+']])+
+ acc('🕋 Hajj Details',[['Records','No records']]);
+function openDetail(key){var d=DETAILS[key];if(!d)return;document.getElementById('detailTitle').textContent=d.t;document.getElementById('detailBody').innerHTML=d.h;document.getElementById('detail').classList.add('show')}
+function closeDetail(){document.getElementById('detail').classList.remove('show')}
+function openService(name){document.getElementById('detailTitle').textContent=name;document.getElementById('detailBody').innerHTML='<p style="font-size:13px;color:var(--muted);margin-top:0">Fill in the details below to submit your request. This is a demo — nothing is sent anywhere.</p><div class="field"><label>ID NUMBER</label><input value="2000000000" readonly></div><div class="field"><label>FULL NAME</label><input value="MD SAMPLE USER"></div><div class="field"><label>PHONE NUMBER</label><input placeholder="+966 5X XXX XXXX"></div><div class="field"><label>NOTES (OPTIONAL)</label><input placeholder="Any note for this request"></div><button class="primary" onclick="submitService(\''+name.replace(/'/g,"")+'\')">Submit Request</button>';document.getElementById('detail').classList.add('show')}
+function submitService(name){closeDetail();var list=document.getElementById('reqList');var div=document.createElement('div');div.className='req';div.innerHTML='<div><b>'+name+'</b><div style="color:var(--muted);font-size:12px;margin-top:2px">Just now • Req #1002</div></div><span class="badge amber">Pending</span>';list.prepend(div);toast('✓ Request submitted (demo) — '+name)}
+document.getElementById('searchBox').addEventListener('input',function(){var q=this.value.toLowerCase().trim();var any=false;document.querySelectorAll('#prefGrid .tile').forEach(function(t){var show=!q||t.dataset.name.includes(q)||t.textContent.toLowerCase().includes(q);t.style.display=show?'':'none';if(show)any=true});document.getElementById('noResult').style.display=any?'none':'block'});
+</script>
+</body>
+</html>
